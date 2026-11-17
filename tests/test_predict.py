@@ -47,4 +47,20 @@ def test_predict_all_machine_types(type_machine: str) -> None:
         r = client.post("/predict", json=payload)
         assert r.status_code == 200
 
+def test_predict_probabilities_equals_one() -> None:
+    """La somme des probabilités renvoyées doit valoir 1.0 (à 1e-9 près)."""
+    with TestClient(app) as client:
+        response = client.post("/predict", json=VALID_PAYLOAD)
+        probabilites = response.json()["probabilites"]
+        total = sum(probabilites.values())
+        assert total == pytest.approx(total, abs=1e-9)
+
+
+def test_predict_missing_field_returns_422() -> None:
+    """Un champ obligatoire absent doit être refusé par Pydantic (422)."""
+    payload = VALID_PAYLOAD.copy()
+    payload.pop("type_machine")
+    with TestClient(app) as client:
+        response = client.post("/predict", json=payload)
+        assert response.status_code == 422
 
