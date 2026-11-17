@@ -70,8 +70,8 @@ Réponse :
 python -m pytest -v
 ```
 
-9 tests : 2 sur `/health`, 7 sur `/predict` (cas valide, type de machine invalide → 422,
-test paramétré sur les 5 types de machine).
+11 tests : 2 sur `/health`, 9 sur `/predict` (cas valide, type de machine invalide → 422,
+test paramétré sur les 5 types de machine, 422 champ manquant et somme des probabilités = 1).
 
 ## ✅ Preuves
 
@@ -84,19 +84,21 @@ platform linux -- Python 3.11.18, pytest-8.3.4, pluggy-1.7.0 -- /home/rrauflet/m
 cachedir: .pytest_cache
 rootdir: /home/rrauflet/formation/M0-B1-maintenance-remy
 plugins: Faker-40.52.0, platformdirs-4.14.5, anyio-4.6.2.post1
-collected 9 items
+collected 11 items
 
-tests/test_health.py::test_health_returns_200 PASSED                  [ 11%]
-tests/test_health.py::test_health_response_schema PASSED              [ 22%]
-tests/test_predict.py::test_predict_valid_returns_200 PASSED          [ 33%]
-tests/test_predict.py::test_predict_invalid_type_machine_returns_422 PASSED [ 44%]
-tests/test_predict.py::test_predict_all_machine_types[pompe] PASSED   [ 55%]
-tests/test_predict.py::test_predict_all_machine_types[compresseur] PASSED [ 66%]
-tests/test_predict.py::test_predict_all_machine_types[convoyeur] PASSED [ 77%]
-tests/test_predict.py::test_predict_all_machine_types[presse] PASSED  [ 88%]
-tests/test_predict.py::test_predict_all_machine_types[four] PASSED    [100%]
+tests/test_health.py::test_health_returns_200 PASSED                          [  9%]
+tests/test_health.py::test_health_response_schema PASSED                      [ 18%]
+tests/test_predict.py::test_predict_valid_returns_200 PASSED                  [ 27%]
+tests/test_predict.py::test_predict_invalid_type_machine_returns_422 PASSED   [ 36%]
+tests/test_predict.py::test_predict_all_machine_types[pompe] PASSED           [ 45%]
+tests/test_predict.py::test_predict_all_machine_types[compresseur] PASSED     [ 54%]
+tests/test_predict.py::test_predict_all_machine_types[convoyeur] PASSED       [ 63%]
+tests/test_predict.py::test_predict_all_machine_types[presse] PASSED          [ 72%]
+tests/test_predict.py::test_predict_all_machine_types[four] PASSED            [ 81%]
+tests/test_predict.py::test_predict_probabilities_equals_one PASSED           [ 90%]
+tests/test_predict.py::test_predict_missing_field_returns_422 PASSED          [100%]
 
-========================= 9 passed in 4.83s =========================
+========================= 11 passed in 4.32s =========================
 ```
 
 ### 2. Santé du service dans le conteneur — `curl /health`
