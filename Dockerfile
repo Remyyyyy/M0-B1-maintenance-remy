@@ -21,12 +21,11 @@
     COPY model/ ./model/
 #   6. EXPOSE 8000 (port que uvicorn écoutera).
     EXPOSE 8000
-
 #
     CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 #
 # Bonus (facultatif) : ajouter un HEALTHCHECK Docker qui interroge /health
-#
+    HEALTHCHECK --interval=30s --timeout=5s --retries=2 CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 # Commande type pour build et lancer une fois ce fichier complété :
 #   docker build -t fastia-maintenance:dev .
 #   docker run --rm -p 8000:8000 fastia-maintenance:dev
