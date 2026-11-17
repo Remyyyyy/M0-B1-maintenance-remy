@@ -20,8 +20,10 @@ from pathlib import Path
 from typing import Any
 
 import joblib
+import pandas as pd
 from fastapi import FastAPI, HTTPException
 from loguru import logger
+
 
 from app.schemas import HealthResponse, MachineInput, PredictionResponse
 
@@ -103,6 +105,24 @@ def predict(item: MachineInput) -> PredictionResponse:
     Returns:
         PredictionResponse avec la classe prédite et les probabilités.
     """
+    df = pd.DataFrame([item.model_dump()])
+    model = state["model"]
+    predicts = model.predict(df)[0]
+    proba = model.predict_proba(df)[0]
+ 
+    probabilites = {}
+    for i in range(len(model.classes_)):
+        classe = model.classes_[i]
+        valeur = float(proba[i])
+        probabilites[classe] = valeur
+
+    return PredictionResponse(
+        criticite=predicts,
+        probabilites=probabilites,
+    )
+
+
+    """
     raise HTTPException(
         status_code=501,
         detail=(
@@ -110,3 +130,4 @@ def predict(item: MachineInput) -> PredictionResponse:
             "et le mini-cours 01_FastAPI_essentiel.md."
         ),
     )
+    """
