@@ -19,6 +19,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
+import time
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -28,6 +29,17 @@ from loguru import logger
 from app.schemas import HealthResponse, MachineInput, PredictionResponse
 
 MODEL_PATH = Path(__file__).resolve().parents[1] / "model" / "model.joblib"
+LOG_DIR = Path(__file__).resolve().parents[1] / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+logger.add(
+    LOG_DIR / "api.log",
+    rotation="5 MB",
+    retention="7 days",
+    compression="zip",
+    level="INFO",
+    enqueue=True,
+)
 
 # Mémoire d'application — peuplée par le lifespan
 state: dict[str, Any] = {}
@@ -105,6 +117,8 @@ def predict(item: MachineInput) -> PredictionResponse:
     Returns:
         PredictionResponse avec la classe prédite et les probabilités.
     """
+    logger.info(f"Début du predict pour : {item.model_dump()}")
+    debut = time.perf_counter()
     df = pd.DataFrame([item.model_dump()])
     model = state["model"]
     predicts = model.predict(df)[0]
@@ -116,6 +130,8 @@ def predict(item: MachineInput) -> PredictionResponse:
         valeur = float(proba[i])
         probabilites[classe] = valeur
 
+    fin = time.perf_counter()
+    logger.info(f"Fin du predict : {predicts} {probabilites} (durée {((fin - debut) * 1000):.2f} ms)")
     return PredictionResponse(
         criticite=predicts,
         probabilites=probabilites,
